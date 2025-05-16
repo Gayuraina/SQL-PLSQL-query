@@ -1,0 +1,19 @@
+-- created procedure for updating department --
+
+create or replace procedure update_employee_department(
+p_emp_id IN NUMBER, p_new_department IN CHAR) IS
+BEGIN
+update employees set Department = p_new_department where emp_id = p_emp_id;
+IF SQL%ROWCOUNT = 0 THEN
+DBMS_OUTPUT.PUT_LINE('Department not found');
+ELSE
+COMMIT;
+DBMS_OUTPUT.PUT_LINE('Department updated successfully');
+END IF;
+END;
+
+-- calling procedure --
+BEGIN
+update_employee_department(3, 'IT');
+END;
+/

@@ -1,0 +1,57 @@
+-- New Challenge (2 Tables Only):
+Tables you will use:
+
+Table		Columns
+employee	employee_id, employee_name, department_id
+salary		salary_id, employee_id, salary_amount, salary_month
+📋 Problem Statement:
+Find employees who have the highest salary within their department for January 2023. --
+
+select * from(
+select e.employee_name, e.department_id, MAX(s.salary_amount) OVER (PARTITION BY e.department_id) as high_salary, AVG(s.salary_amount) OVER (PARTITION BY e.department_id) as department_average_salary, s.salary_month from employee e JOIN salary s ON e.employee_id = s.employee_id where s.salary_month = '01-2023') t where salary_amount = high_salary;
+
+
+-- New Challenge (Same Level):
+Tables you will use:
+
+Table		Columns
+employee	employee_id, employee_name, department_id
+salary		salary_id, employee_id, salary_amount, salary_month
+📋 Problem Statement:
+Find employees whose salary is lower than the average salary of their department for January 2023. --
+
+select * from (
+select e.employee_id,e.employee_name,e.department_id, s.salary_amount, MIN(s.salary_amount) OVER (PARTITION BY e.department_id) as min_salary, AVG(s.salary_amount) OVER (PARTITION BY e.department_id) as department_average_salary from employee e JOIN salary s ON e.employee_id = s.employee_id
+WHERE s.salary_month = '01-2023') t where s.salary < department_average_salary;
+
+-- New Challenge (Level-Up: Slightly Harder)
+Tables you will use:
+
+Table		Columns
+employee	employee_id, employee_name, department_id
+salary		salary_id, employee_id, salary_amount, salary_month
+📋 Problem Statement:
+Find the employee who has the 2nd highest salary in each department for January 2023. --
+
+select * from(
+select e.employee_id, e.employee_name,e.department_id, s.salary_amount, RANK() OVER (PARTITION BY e.department_id ORDER BY s.salary_amount DESC) as salary_rank from employee e JOIN salary s ON e.employee_id = s.employee_id where s.salary_month = '01-2023') t where salary_rank = 2;
+
+-- Find each department’s top-performing employee in terms of total projects worked in 2023.
+If two employees have the same project count, pick both. --
+
+
+SELECT * FROM (
+  SELECT 
+      e.employee_id,
+      e.employee_name,
+      d.department_name,
+      COUNT(ep.project_id) AS number_of_projects,
+      AVG(COUNT(ep.project_id)) OVER (PARTITION BY d.department_name) AS department_average_projects,
+      RANK() OVER (PARTITION BY d.department_name ORDER BY COUNT(ep.project_id) DESC) AS rank_in_department
+  FROM employee e
+  JOIN department d ON e.department_id = d.department_id
+  JOIN employee_project ep ON e.employee_id = ep.employee_id
+  WHERE EXTRACT(YEAR FROM ep.assigned_date) = 2023
+  GROUP BY e.employee_id, e.employee_name, d.department_name
+)
+WHERE rank_in_department = 1;
