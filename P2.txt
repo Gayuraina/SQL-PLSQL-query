@@ -1,0 +1,31 @@
+-- creating procedure --
+
+CREATE OR REPLACE PROCEDURE get_tree_details (
+    p_emp_id       IN  tree.emp_id%TYPE,
+    p_emp_name     OUT tree.emp_name%TYPE,
+    p_emp_salary   OUT tree.emp_salary%TYPE
+)
+AS
+BEGIN
+    SELECT emp_name, emp_salary
+    INTO p_emp_name, p_emp_salary
+    FROM tree
+    WHERE emp_id = p_emp_id;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        p_emp_name := 'Not Found';
+        p_emp_salary := 0;
+END;
+/
+
+
+-- calling a procedure --
+DECLARE
+    v_name tree.emp_name%TYPE;
+    v_salary tree.emp_salary%TYPE;
+BEGIN
+    get_tree_details(101, v_name, v_salary);
+    DBMS_OUTPUT.PUT_LINE('Name: ' || v_name);
+    DBMS_OUTPUT.PUT_LINE('Salary: ' || v_salary);
+END;
+/

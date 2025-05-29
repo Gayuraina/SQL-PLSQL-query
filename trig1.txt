@@ -1,0 +1,17 @@
+-- after insert trigger --
+
+CREATE OR REPLACE TRIGGER trg_after_insert_employee
+AFTER INSERT ON employee
+FOR EACH ROW
+BEGIN
+    INSERT INTO employee_audit1 (employee_id, action_type, action_date)
+    VALUES (:NEW.employee_id, 'INSERT', SYSDATE);
+END;
+/
+
+-- after inserting a row in table --
+
+INSERT INTO employee (employee_id, employee_name, department_id, hire_date)
+VALUES (106, 'Sabs', 3, '03282023');
+
+SELECT * FROM employee_audit1;
